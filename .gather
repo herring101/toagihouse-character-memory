@@ -5,7 +5,6 @@ skip_binary=yes
 output_dir=gather
 use_timestamp=no
 open_output=yes
-use_gitignore=yes
 first_run_completed=yes
 max_files_per_dir=100
 max_auto_file_size=1000000
