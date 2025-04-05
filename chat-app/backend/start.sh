@@ -26,11 +26,10 @@ if [ -f ".env.local" ]; then
 fi
 
 # 必要なAPIキーが設定されているか確認
-# 少なくとも一つのモデルのAPIキーが必要
-if [ -z "$GOOGLE_API_KEY" ] && [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+if [ -z "$GEMINI_API_KEY" ] && [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
     echo "エラー: 少なくとも一つのAPIキーを設定してください。"
     echo "例:"
-    echo "GOOGLE_API_KEY=\"your-google-api-key\""
+    echo "GEMINI_API_KEY=\"your-google-api-key\""
     echo "OPENAI_API_KEY=\"your-openai-api-key\""
     echo "ANTHROPIC_API_KEY=\"your-anthropic-api-key\""
     exit 1

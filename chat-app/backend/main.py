@@ -57,14 +57,15 @@ def get_models():
             "provider": "Google",
         },
         {"id": "openai/gpt-4o", "name": "GPT-4o", "provider": "OpenAI"},
+        {"id": "openai/gpt-4o-mini", "name": "GPT-4o mini", "provider": "OpenAI"},
         {
-            "id": "anthropic/claude-3-sonnet-20240229",
-            "name": "Claude 3 Sonnet",
+            "id": "anthropic/claude-3-7-sonnet-20250219",
+            "name": "Claude 3.7 Sonnet",
             "provider": "Anthropic",
         },
         {
-            "id": "anthropic/claude-3-opus-20240229",
-            "name": "Claude 3 Opus",
+            "id": "anthropic/claude-3-5-haiku-20241022",
+            "name": "Claude 3.5 Haiku",
             "provider": "Anthropic",
         },
     ]
@@ -97,8 +98,14 @@ async def chat(request: ChatRequest = Body(...)):
                 "content": response.choices[0].message.content,
                 "role": response.choices[0].message.role,
             }
+    except ValueError as e:
+        # 明示的なバリデーションエラー
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # デバッグ情報を含むエラーメッセージ
+        error_message = f"Error with model {request.model}: {str(e)}"
+        print(error_message)  # サーバーログに出力
+        raise HTTPException(status_code=500, detail=error_message)
 
 
 # サーバー起動コマンド
