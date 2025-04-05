@@ -1,5 +1,39 @@
 # ToagiHouse Character Memory System プロジェクト構造概要
 
+## セットアップと実行方法
+
+### 前提条件
+- Node.js 18以上
+- Python 3.8以上
+- npm または yarn
+
+### 初期セットアップ
+
+```bash
+# 初期セットアップスクリプトを実行
+./setup.sh
+```
+
+このスクリプトは以下の処理を自動的に行います：
+- `.env.local` ファイルのテンプレートを作成（初回のみ）
+- フロントエンド依存関係のインストール（npm install）
+- バックエンド用の仮想環境作成とパッケージインストール
+
+`.env.local` ファイルに少なくとも一つのLLM APIキーを設定してください：
+- `OPENAI_API_KEY`
+- `GEMINI_API_KEY` / `GOOGLE_API_KEY`
+- `ANTHROPIC_API_KEY`
+
+### アプリケーションの起動
+
+```bash
+# フロントエンドとバックエンドを同時に起動
+./start-app.sh
+```
+
+- フロントエンド: http://localhost:3000
+- バックエンド: http://localhost:8000
+
 ## 現在のプロジェクト構成
 
 ### 全体構造

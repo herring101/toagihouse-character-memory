@@ -13,7 +13,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # プロジェクトルートの.env.localファイルが存在する場合は読み込む
-ROOT_ENV_FILE="../../.env.local"
+ROOT_ENV_FILE="../.env.local"
 if [ -f "$ROOT_ENV_FILE" ]; then
     echo "プロジェクトルートの.env.localファイルから環境変数を読み込みます"
     export $(grep -v '^#' $ROOT_ENV_FILE | xargs)
