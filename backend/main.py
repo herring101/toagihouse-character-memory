@@ -2,11 +2,11 @@ from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Optional, AsyncIterator, Dict
+from typing import List, AsyncIterator, Dict
 import os
 import json
 from dotenv import load_dotenv
-from litellm import completion, acompletion
+from litellm import completion
 
 # 環境変数のロード
 load_dotenv()
