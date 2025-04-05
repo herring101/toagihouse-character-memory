@@ -16,18 +16,11 @@ setup_env() {
   if [ ! -f "$ROOT_DIR/.env.local" ]; then
     echo -e "${GREEN}.env.localu30d5u30a1u30a4u30ebu3092u4f5cu6210u3057u307eu3059...${NC}"
     cat > "$ROOT_DIR/.env.local" << EOL
-# API Keys for LLM services
-# At least one of these must be set
-OPENAI_API_KEY=""
-GEMINI_API_KEY=""
-GOOGLE_API_KEY=""
-ANTHROPIC_API_KEY=""
+SUPABASE_DB_PASSWORD=
+OPENAI_API_KEY=
+GEMINI_API_KEY=
+ANTHROPIC_API_KEY=
 
-# Database connection
-DATABASE_URL=""
-
-# Other configurations
-DEFAULT_MODEL="gpt-3.5-turbo"
 EOL
 
     echo -e "${YELLOW}u6ce8u610f: .env.localu30d5u30a1u30a4u30ebu3092u4f5cu6210u3057u307eu3057u305fu3002APIu30adu30fcu3092u8a2du5b9au3057u3066u304fu3060u3055u3044u3002${NC}"
