@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# u8272u306eu8a2du5b9a
+# 色の設定
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}===== ToAGI House Character Memory u521du671fu30bbu30c3u30c8u30a2u30c3u30d7 =====${NC}"
+echo -e "${BLUE}===== ToAGI House Character Memory 初期セットアップ =====${NC}"
 
-# u30d7u30edu30b8u30a7u30afu30c8u30ebu30fcu30c8u30c7u30a3u30ecu30afu30c8u30eau306eu53d6u5f97
+# プロジェクトルートディレクトリの取得
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# .env.localu306eu30bbu30c3u30c8u30a2u30c3u30d7
+# .env.localのセットアップ
 setup_env() {
   if [ ! -f "$ROOT_DIR/.env.local" ]; then
     echo -e "${GREEN}.env.localu30d5u30a1u30a4u30ebu3092u4f5cu6210u3057u307eu3059...${NC}"
