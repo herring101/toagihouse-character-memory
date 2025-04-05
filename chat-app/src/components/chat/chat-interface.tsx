@@ -141,7 +141,7 @@ export function ChatInterface() {
   return (
     <div className="flex flex-col h-[80vh] max-w-3xl mx-auto border rounded-lg overflow-hidden">
       <div className="bg-primary p-3 text-primary-foreground flex justify-between items-center">
-        <h2 className="text-xl font-bold">AI Chat</h2>
+        <h2 className="text-xl font-bold">ToagiHouse AI Chat</h2>
         <div className="flex items-center space-x-3">
           <div className="flex items-center">
             <input
