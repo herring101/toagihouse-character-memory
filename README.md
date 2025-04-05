@@ -1,90 +1,79 @@
-# ToagiHouse Character Memory System
+# ToagiHouse Character Memory System プロジェクト構造概要
 
-## 概要
+## 現在のプロジェクト構成
 
-ToagiHouse Character Memory System は、キャラクターの記憶を管理するためのデータベースシステムです。キャラクターごとに異なるタイプの記憶（日常的な記憶から長期的な記憶まで）を保存・管理することができます。
+### 全体構造
 
-## 機能
+- プロジェクトルート：基本設定ファイル（package.json, README.md, .gitignore）
+- `supabase/`：Supabase 関連設定とマイグレーションファイル
+- `chat-app/`：Next.js ベースのフロントエンドアプリケーション
+- `chat-app/backend/`：FastAPI + LiteLLM ベースのバックエンド
 
-- キャラクター情報の管理
-- 様々なタイプの記憶（daily, deca, centi, kilo, mega, tera）の保存
-- 日数範囲に基づいた記憶の管理
-- セッション管理による同時接続の制限
+### フロントエンド (Next.js)
 
-## データベース構造
+- Next.js 15.2.4、React 19、TypeScript 使用
+- Tailwind CSS と shadcn/UI コンポーネントライブラリでスタイリング
+- チャットインターフェース実装済み
+- 複数の AI モデル（Gemini、OpenAI、Anthropic）切り替え機能
 
-### characters テーブル
+### バックエンド (FastAPI + LiteLLM)
 
-キャラクター情報を管理するテーブル
+- FastAPI フレームワークで REST API 構築
+- LiteLLM で複数の AI プロバイダー（Google、OpenAI、Anthropic）と統合
+- ストリーミング/非ストリーミングモードサポート
+- モデル一覧取得とチャット機能のエンドポイント提供
 
-- `id`: UUID (PK)
-- `user_id`: UUID
-- `name`: TEXT
-- `config`: JSONB（将来的な拡張用）
-- `created_at`: TIMESTAMPTZ
+### データベース設計 (Supabase/PostgreSQL)
 
-### memories テーブル
+初期スキーマでは以下のテーブルが定義済み：
 
-キャラクターの記憶を管理するテーブル
+1. **characters**：キャラクター基本情報
 
-- `id`: UUID (PK)
-- `user_id`: UUID
-- `character_id`: UUID (FK → characters.id)
-- `memory_type`: TEXT（例："daily", "deca", "centi", "kilo", "mega", "tera"）
-- `start_day`: INTEGER
-- `end_day`: INTEGER
-- `content`: TEXT
-- `created_at`: TIMESTAMPTZ
+   - `id`: UUID (PK)
+   - `user_id`: UUID
+   - `name`: TEXT
+   - `config`: JSONB (将来拡張用)
+   - `created_at`: TIMESTAMPTZ
 
-### sessions テーブル
+2. **memories**：キャラクターの記憶データ
 
-ユーザーセッションを管理するテーブル
+   - `id`: UUID (PK)
+   - `user_id`: UUID
+   - `character_id`: UUID (FK)
+   - `memory_type`: TEXT ('daily', 'deca', 'centi', 'kilo', 'mega', 'tera'等)
+   - `start_day`: INTEGER
+   - `end_day`: INTEGER
+   - `content`: TEXT
+   - `created_at`: TIMESTAMPTZ
 
-- `id`: UUID (PK)
-- `user_id`: UUID
-- `character_id`: UUID (FK → characters.id)
-- `device_id`: TEXT
-- `is_active`: BOOLEAN
-- `started_at`: TIMESTAMPTZ
-- `last_updated_at`: TIMESTAMPTZ
+3. **sessions**：ユーザーセッション管理
+   - `id`: UUID (PK)
+   - `user_id`: UUID
+   - `character_id`: UUID (FK)
+   - `device_id`: TEXT
+   - `is_active`: BOOLEAN
+   - `started_at`/`last_updated_at`: TIMESTAMPTZ
 
-## セットアップ
+適切なインデックスと Row Level Security（RLS）ポリシーも設定済み。
 
-### 前提条件
+## 実装予定の機能構造
 
-- Supabase CLI
-- Node.js
+### 「記憶機能」の階層設計
 
-### インストール
+階層的な記憶構造を実装予定：
 
-1. リポジトリをクローン
+- **daily**：日々の会話・作業記録
+- **deca**：1 日の思い出をまとめたもの
+- **centi**：思い出メモ 10 個分をまとめたもの（〜10 日）
+- **kilo**：x10 思い出メモ 10 個分（〜100 日）
+- **mega**：x100 思い出メモ 10 個分（〜1000 日）
+- **tera**以上：より長期の記憶（必要に応じて）
 
-   ```bash
-   git clone https://github.com/herring101/toagihouse-character-memory.git
-   cd toagihouse-character-memory
-   ```
+### 「セッション」機能
 
-2. Supabase プロジェクトとリンク
+セッション開始時に以下の記憶をシステムプロンプトに含める：
 
-   ```bash
-   supabase init
-   supabase link --project-ref your-project-ref
-   ```
+- その日の会話・作業記録
+- 直前 10 個の各階層記憶（思い出メモ、x10、x100、x1000 など）
 
-3. データベースマイグレーションを適用
-   ```bash
-   supabase db push
-   ```
-
-## 使用方法
-
-Supabase SDK を使用して、データベースに接続し、キャラクターや記憶を管理できます。詳細な API ドキュメントは今後追加予定です。
-
-## セキュリティ
-
-- すべてのテーブルに Row Level Security (RLS)が適用されています
-- ユーザーは自分のデータのみにアクセスできます
-
-## ライセンス
-
-MIT
+データベースと連携し、キャラクターの記憶を階層的に保存・取得する機能が必要になります。既存のチャットインターフェースと記憶システムを統合するための開発が次のステップになります。

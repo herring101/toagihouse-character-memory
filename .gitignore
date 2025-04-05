@@ -31,6 +31,9 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Tool
+gather
+
 # Python
 __pycache__/
 *.py[cod]

@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, AsyncIterator, Dict
 import os
+import json
 from dotenv import load_dotenv
 from litellm import completion, acompletion
 
@@ -80,17 +82,23 @@ async def chat(request: ChatRequest = Body(...)):
             {"role": msg.role, "content": msg.content} for msg in request.messages
         ]
 
-        # LiteLLMを使用して応答を生成
-        response = completion(
-            model=request.model, messages=messages, stream=request.stream
-        )
+        # API キーのマッピング (Gemini API 用)
+        if "gemini" in request.model.lower() and os.environ.get("GOOGLE_API_KEY") and not os.environ.get("GEMINI_API_KEY"):
+            os.environ["GEMINI_API_KEY"] = os.environ.get("GOOGLE_API_KEY")
 
-        # レスポンスの整形
+        # ストリーミングレスポンスの場合
         if request.stream:
-            # ストリーミングレスポンスの場合はそのまま返す
-            return response
+            return StreamingResponse(
+                stream_response(request.model, messages),
+                media_type="text/event-stream"
+            )
         else:
-            # 通常のレスポンスの場合は必要な情報を抽出
+            # 通常のレスポンスの場合
+            response = completion(
+                model=request.model, messages=messages, stream=False
+            )
+            
+            # レスポンスの整形
             return {
                 "id": response.id,
                 "created": response.created,
@@ -100,12 +108,45 @@ async def chat(request: ChatRequest = Body(...)):
             }
     except ValueError as e:
         # 明示的なバリデーションエラー
-        raise HTTPException(status_code=400, detail=str(e))
+        error_message = str(e)
+        if "gemini" in request.model.lower() and "API key" in error_message:
+            error_message = "Gemini API key is missing or invalid. Please check your GEMINI_API_KEY or GOOGLE_API_KEY environment variable."
+        raise HTTPException(status_code=400, detail=error_message)
     except Exception as e:
         # デバッグ情報を含むエラーメッセージ
         error_message = f"Error with model {request.model}: {str(e)}"
         print(error_message)  # サーバーログに出力
         raise HTTPException(status_code=500, detail=error_message)
+
+
+async def stream_response(model: str, messages: List[Dict[str, str]]) -> AsyncIterator[str]:
+    """
+    ストリーミングレスポンスを生成するジェネレータ関数
+    Server-Sent Events (SSE) 形式でレスポンスを返す
+    """
+    try:
+        response = completion(model=model, messages=messages, stream=True)
+        
+        for chunk in response:
+            if hasattr(chunk.choices[0], 'delta'):
+                # OpenAI互換フォーマット
+                delta = chunk.choices[0].delta
+                content = delta.content or ""
+                
+                # SSE形式でデータを返す
+                if content:
+                    yield f"data: {json.dumps({'content': content, 'done': False})}\n\n"
+            else:
+                # その他のフォーマット (必要に応じて調整)
+                content = chunk.choices[0].message.content if hasattr(chunk.choices[0], 'message') else ""
+                if content:
+                    yield f"data: {json.dumps({'content': content, 'done': False})}\n\n"
+        
+        # ストリーミング完了を示す最後のメッセージ
+        yield f"data: {json.dumps({'content': '', 'done': True})}\n\n"
+    except Exception as e:
+        error_message = str(e)
+        yield f"data: {json.dumps({'error': error_message, 'done': True})}\n\n"
 
 
 # サーバー起動コマンド
