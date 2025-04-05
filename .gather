@@ -18,6 +18,7 @@ gather/
 *venv*
 *.next
 *cache
+*package-lock.json
 
 [skip]
 *.pdf

@@ -15,7 +15,16 @@ CREATE TABLE IF NOT EXISTS memories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL,
   character_id UUID NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-  memory_type TEXT NOT NULL, -- 'daily', 'deca', 'centi', 'kilo', 'mega', 'tera', etc.
+  /* 
+   * memory_type defines the hierarchical memory structure:
+   * - 'daily_raw': Raw daily conversation and task records
+   * - 'daily_summary': Summary of a single day's memories
+   * - 'level_10': Summary of approximately 10 daily_summary memories (~10 days)
+   * - 'level_100': Summary of approximately 10 level_10 memories (~100 days)
+   * - 'level_1000': Summary of approximately 10 level_100 memories (~1000 days)
+   * - 'level_archive': Very long-term consolidated memories beyond 1000 days
+   */
+  memory_type TEXT NOT NULL,
   start_day INTEGER NOT NULL,
   end_day INTEGER NOT NULL,
   content TEXT NOT NULL,
