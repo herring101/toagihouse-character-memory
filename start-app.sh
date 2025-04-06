@@ -5,7 +5,7 @@ BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}===== ToAGI House Character Memory アプリケーション起動 =====${NC}"
+echo -e "${BLUE}===== TOAGI House Character Memory アプリケーション起動 =====${NC}"
 
 # バックエンドとフロントエンドを同時に起動する
 

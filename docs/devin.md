@@ -26,10 +26,10 @@ python run.py
 ruff check .
 
 # ユニットテスト実行
-python -m unittest app/tests/test_crud.py
+pytest
 
-# 統合テスト実行
-python app/tests/test_data_access.py
+# 特定のテストのみ実行
+pytest app/tests/test_crud.py -v
 ```
 
 ### フロントエンド開発
@@ -55,13 +55,18 @@ backend/
 ├── app/                    # アプリケーションコード
 │   ├── api/                # API関連のコード
 │   ├── core/               # コア機能（データベース接続など）
-│   │   └── database.py     # データベース接続設定
+│   │   ├── constants.py    # 定数定義（記憶タイプなど）
+│   │   ├── database.py     # データベース接続設定
+│   │   └── prompts.py      # LLMプロンプトテンプレート
 │   ├── crud/               # データアクセス関数
 │   │   ├── character.py    # キャラクター管理関数
 │   │   ├── memory.py       # 記憶管理関数
 │   │   └── session.py      # セッション管理関数
-│   ├── models/             # データモデル
-│   │   └── __init__.py     # SQLAlchemyモデル定義
+│   ├── memory/             # 記憶管理エンジン
+│   │   ├── generator.py    # 記憶生成エンジン
+│   │   ├── processor.py    # 睡眠処理エンジン
+│   │   └── retriever.py    # 記憶取得エンジン
+│   ├── models.py           # SQLAlchemyモデル定義
 │   ├── tests/              # テストコード
 │   └── main.py             # FastAPIアプリケーション
 ├── run.py                  # アプリケーション起動スクリプト
@@ -75,7 +80,7 @@ chat-app/
 ├── public/                 # 静的ファイル
 ├── src/                    # ソースコード
 │   ├── app/                # Next.jsアプリケーション
-│   │   ├── api/            # APIルート
+│   │   ├── api/            # APIクライアント
 │   │   └── page.tsx        # メインページ
 │   ├── components/         # Reactコンポーネント
 │   │   └── chat/           # チャット関連コンポーネント
@@ -86,121 +91,90 @@ chat-app/
 
 ## 実装の進捗
 
-### 完了したタスク
+### 完了したコンポーネント
 
-- ✅ **Phase 1.1**: Supabase接続設定
-- ✅ **Phase 1.2**: データアクセス関数の実装
-  - キャラクター管理CRUD操作
-  - 記憶管理CRUD操作
-  - セッション管理CRUD操作
+- ✅ **データベース接続**: Supabase との連携設定
+- ✅ **データモデル**: 基本的な SQLAlchemy モデル（Character, Memory, Session）
+- ✅ **CRUD 操作**: SQLAlchemy ORM 経由でのデータアクセス関数
+- ✅ **記憶管理エンジン**: 階層的記憶の生成・取得・処理ロジック
+- ✅ **基本チャット API**: テキスト生成 API エンドポイント
+- ✅ **単体テスト**: CRUD 操作と記憶エンジンの単体テスト（モック対応済み）
 
-### 次のタスク
+### 現在実装中
 
-- ✅ **Phase 1.3**: 追加マイグレーションとRLS設定
-  - キャラクターテーブルに睡眠状態と記憶処理日時の追加
-  - 記憶テーブルに処理状態フラグの追加
-  - 記憶取得の最適化のためのインデックス追加
-- ✅ **Phase 2**: 記憶管理エンジンの実装
-  - 記憶構造の設計と定数定義
-  - 記憶生成プロセスの実装
-  - 記憶取得プロセスの実装
-  - 睡眠時の記憶処理メカニズムの実装
+- 🔄 **API レイヤーの拡張**: キャラクター管理、記憶管理の API エンドポイント
+- 🔄 **セッション管理 API**: 会話・睡眠セッションのエンドポイント
 
-### 次のタスク
+### 次に実装予定
 
-- **Phase 3**: APIレイヤーの実装
-- **Phase 4**: ユーザーインターフェースの実装
+- 📅 **キャラクター UI**: キャラクター管理画面とチャットインターフェース統合
+- 📅 **記憶閲覧 UI**: 階層的記憶の視覚化
+- 📅 **セッション管理 UI**: 会話・睡眠状態の制御インターフェース
 
-## 注意点と解決済みの問題
+## テスト方法
+
+### 実際の LLM API を使用したテスト
+
+実際の LLM API を使用したテストを行う場合は、以下の環境変数を設定してください：
+
+```bash
+# いずれかのAPIキーを設定
+export OPENAI_API_KEY="your-openai-api-key"
+export GEMINI_API_KEY="your-gemini-api-key"
+export ANTHROPIC_API_KEY="your-anthropic-api-key"
+```
+
+## 記憶階層構造
+
+本システムは以下の階層的記憶構造を実装しています：
+
+1. **daily_raw**: 生の会話データから変換された日々の記憶
+2. **daily_summary**: daily_raw から生成された日単位の要約
+3. **level_10**: 約 10 日分の記憶をまとめた要約（10 倍スケール第 1 階層）
+4. **level_100**: 約 100 日分の記憶をまとめた要約（10 倍スケール第 2 階層）
+5. **level_1000**: 約 1000 日分の記憶をまとめた要約（10 倍スケール第 3 階層）
+6. **level_archive**: 1000 日を超える長期的な統合記憶（最高レベルの抽象化）
+
+この階層構造は `app/core/constants.py`で定義されており、記憶管理エンジンがこれに従って記憶の生成と取得を行います。
+
+## 睡眠処理メカニズム
+
+キャラクターの記憶整理プロセスは、睡眠セッション中に実行されます：
+
+1. `SleepProcessor.start_sleep_session(current_day)`メソッドで睡眠セッションを開始
+2. 現在の日に対応する `daily_raw`記憶から `daily_summary`を生成
+3. 日数に応じて、階層的記憶（level_10、level_100 など）を生成
+4. セッションステータスを「完了」に更新し、処理結果を返す
+
+睡眠処理テストは `test_memory.py`で実装されており、実際の LLM 呼び出しをモック化してテストします。
+
+## 注意点と対策
 
 ### 環境変数
 
-- ✅ **dotenv依存関係の削除**: 環境変数は`os.environ.get()`で直接取得するように変更
 - ⚠️ **必要な環境変数**:
-  - LLM API: `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`（少なくとも1つ）
+  - LLM API: `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`（少なくとも 1 つ）
   - Supabase: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_DB_PASSWORD`
 
 ### データベース接続
 
-- ⚠️ **Supabaseへの直接接続制限**: Supabaseデータベースへの直接PostgreSQL接続（ポート5432）は失敗するため、ローカル接続（ポート54322）を使用するように設定を変更しました
-- ✅ **解決策**: ローカル開発環境では`localhost:54322`への接続を優先します。必要に応じて`app/core/database.py`と`app/tests/test_data_access.py`のコメントを編集することで直接接続に切り替えることができます
-
-#### ローカルSupabaseの設定
-
-テストを実行するには、ローカルのPostgreSQLインスタンスが必要です：
-
-```bash
-# Docker経由でPostgreSQLを起動
-docker run --name postgres-test -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres -p 54322:5432 -d postgres:14
-
-# マイグレーションを適用してスキーマを作成
-cat supabase/migrations/20250406_initial_schema.sql | docker exec -i postgres-test psql -U postgres -d postgres
-```
-
-または、Supabase CLIを使用する場合：
-
-```bash
-# Supabase CLIのインストール（Homebrew経由）
-brew install supabase/tap/supabase
-
-# ローカルSupabaseの起動
-supabase init --force
-supabase start
-
-# これにより、PostgreSQLがlocalhost:54322で利用可能になります
-# ユーザー名: postgres
-# パスワード: postgres（または環境変数SUPABASE_DB_PASSWORDで指定）
-```
-
-テスト実行時は、ローカルPostgreSQLが起動していることを確認してください。また、マイグレーションファイルを適用してスキーマが作成されていることを確認してください。
-
-### コード品質
-
-- ⚠️ **リンター警告**: 未使用のインポートや不適切なブール比較に注意
-- ✅ **解決策**: `is_active == True`のような比較を`is_active`に簡略化
-- ✅ **メモリエンジンのリンター修正**: 未使用のインポートを削除し、裸のexcept文を具体的な例外タイプに修正
+- ローカル開発環境では `localhost:54322`への PostgreSQL 接続を使用
+- Supabase CLI を使用する場合はローカル DB が自動的に起動します
+- テスト実行時はインメモリ SQLite を使用するため、DB 設定は不要
 
 ### テスト
 
-- ✅ **ユニットテスト**: モックを使用してデータベース接続なしでテスト可能
-- ⚠️ **統合テスト**: 実際のデータベースを使用する場合は環境変数の設定が必要
-- ✅ **メモリエンジンのテスト**: 以下のテストを実装し、すべて正常に通過することを確認
-  - `test_memory_generator_convert_raw_conversation`: 生の会話からdaily_raw記憶への変換をテスト
-  - `test_memory_generator_daily_summary`: daily_raw記憶からdaily_summaryの生成をテスト
-  - `test_memory_retriever_select_memories`: セッションコンテキストのための記憶選択をテスト
-  - `test_sleep_processor_start_sleep_session`: 睡眠セッション中の記憶処理をテスト
-- ✅ **テスト実行方法**:
-  ```bash
-  cd ~/repos/toagihouse-character-memory/backend
-  source venv/bin/activate
-  python -m unittest app/tests/test_memory_engine.py
-  ```
-- ✅ **リンターチェック**: `ruff check .` を実行し、未使用のインポートなどの問題を修正
+- モックを使用することで、実際の LLM API に接続せずにテストを実行可能
+- テスト実行前にはリンターチェックを推奨: `ruff check .`
+- `pytest`コマンドで全テストを実行、`pytest -v`で詳細出力
+- `pytest -k "test_name"`で特定のテストのみ実行可能
 
-### 記憶管理エンジンの実装詳細
+## 今後の開発計画
 
-#### 階層的記憶構造
+1. API レイヤーの拡張（キャラクター・記憶・セッション管理）
+2. フロントエンド UI の実装（キャラクター管理、記憶閲覧）
+3. チャットインターフェースとの統合
+4. エンドツーエンドテストの実装
+5. デプロイ準備
 
-記憶は以下の階層で管理されます：
-
-1. **daily_raw**: 生の会話データから変換された日々の記憶
-2. **daily_summary**: daily_rawから生成された日単位の要約
-3. **level_10**: 約10日分の記憶をまとめた要約（10倍スケール第1階層）
-4. **level_100**: 約100日分の記憶をまとめた要約（10倍スケール第2階層）
-5. **level_1000**: 約1000日分の記憶をまとめた要約（10倍スケール第3階層）
-6. **level_archive**: 1000日を超える長期的な統合記憶（最高レベルの抽象化）
-
-#### 睡眠時記憶処理
-
-キャラクターの記憶整理プロセスは、夜間の睡眠セッション中に実行されます：
-
-1. キャラクターが「睡眠状態」になると、`SleepProcessor`クラスの`start_sleep_session`メソッドが呼び出されます
-2. 現在の日に対応する`daily_raw`記憶から`daily_summary`が生成されます
-3. 日数に応じて、より高次の階層的記憶（level_10、level_100など）が必要に応じて生成されます
-4. 記憶処理が完了すると、キャラクターの睡眠状態が解除されます
-
-#### 設定の柔軟性
-
-- プロンプトは`app/core/prompts/memory_prompts.py`で外部定義されており、簡単に編集可能
-- LLMモデルは各クラスのコンストラクタでデフォルト値として設定され、インスタンス化時に変更可能
-- 記憶タイプと階層構造は`app/core/constants/memory_types.py`で定義され、システム全体で一貫して使用
+詳細な計画は `docs/plan.md`を参照してください。
