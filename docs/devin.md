@@ -143,6 +143,36 @@ class Session(Base):
    - セッション更新関数: `update_session(session_id, is_active=None)`
    - セッション終了関数: `end_session(session_id)`
 
+## バックエンドフォルダ構造
+
+バックエンドコードは以下の構造に整理されています：
+
+```
+backend/
+├── app/                    # アプリケーションコード
+│   ├── __init__.py
+│   ├── api/                # API関連のコード
+│   │   └── __init__.py
+│   ├── core/               # コア機能（データベース接続など）
+│   │   ├── __init__.py
+│   │   └── database.py     # データベース接続設定
+│   ├── crud/               # データアクセス関数
+│   │   ├── __init__.py
+│   │   ├── character.py    # キャラクター管理関数
+│   │   ├── memory.py       # 記憶管理関数
+│   │   └── session.py      # セッション管理関数
+│   ├── main.py             # FastAPIアプリケーションのエントリーポイント
+│   ├── models/             # データモデル
+│   │   └── __init__.py     # SQLAlchemyモデル定義
+│   └── tests/              # テストコード
+│       ├── __init__.py
+│       ├── test_crud.py    # CRUD関数のユニットテスト
+│       └── test_data_access.py  # データアクセスの統合テスト
+├── run.py                  # アプリケーション起動スクリプト
+├── requirements.txt        # 依存パッケージリスト
+└── venv/                   # Python仮想環境
+```
+
 ## 実装の進捗
 
 ### タスク1.2「データアクセス関数の実装」の完了
