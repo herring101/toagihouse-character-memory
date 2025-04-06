@@ -115,13 +115,24 @@ chat-app/
 
 #### ローカルSupabaseの設定
 
-テストを実行するには、ローカルのSupabaseインスタンスが必要です：
+テストを実行するには、ローカルのPostgreSQLインスタンスが必要です：
 
 ```bash
-# Supabase CLIのインストール
-npm install -g supabase
+# Docker経由でPostgreSQLを起動
+docker run --name postgres-test -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres -p 54322:5432 -d postgres:14
+
+# マイグレーションを適用してスキーマを作成
+cat supabase/migrations/20250406_initial_schema.sql | docker exec -i postgres-test psql -U postgres -d postgres
+```
+
+または、Supabase CLIを使用する場合：
+
+```bash
+# Supabase CLIのインストール（Homebrew経由）
+brew install supabase/tap/supabase
 
 # ローカルSupabaseの起動
+supabase init --force
 supabase start
 
 # これにより、PostgreSQLがlocalhost:54322で利用可能になります
@@ -129,7 +140,7 @@ supabase start
 # パスワード: postgres（または環境変数SUPABASE_DB_PASSWORDで指定）
 ```
 
-テスト実行時は、ローカルSupabaseが起動していることを確認してください。
+テスト実行時は、ローカルPostgreSQLが起動していることを確認してください。また、マイグレーションファイルを適用してスキーマが作成されていることを確認してください。
 
 ### コード品質
 
