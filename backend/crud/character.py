@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
 import uuid
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 
 from models import Character
 

@@ -1,12 +1,9 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 import uuid
-from sqlalchemy.exc import SQLAlchemyError
 
-from models import Character, Memory, Session
-from crud.character import create_character, get_character, update_character, delete_character
-from crud.memory import add_memory, get_memories_by_character, update_memory, delete_memory
-from crud.session import create_session, get_active_session, update_session, end_session
+from models import Character
+from crud.character import create_character, get_character
 
 class TestCharacterCRUD(unittest.TestCase):
     def setUp(self):
@@ -19,7 +16,7 @@ class TestCharacterCRUD(unittest.TestCase):
         self.db.commit = MagicMock()
         self.db.refresh = MagicMock()
         
-        result = create_character(self.db, self.user_id, "テストキャラクター")
+        create_character(self.db, self.user_id, "テストキャラクター")
         
         self.db.add.assert_called_once()
         self.db.commit.assert_called_once()
@@ -28,7 +25,6 @@ class TestCharacterCRUD(unittest.TestCase):
     def test_get_character(self):
         query_mock = MagicMock()
         filter_mock = MagicMock()
-        first_mock = MagicMock()
         
         self.db.query.return_value = query_mock
         query_mock.filter.return_value = filter_mock

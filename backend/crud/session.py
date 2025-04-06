@@ -24,7 +24,7 @@ def create_session(db: Session, user_id: uuid.UUID, character_id: uuid.UUID, dev
         existing_sessions = db.query(DbSession).filter(
             DbSession.character_id == character_id,
             DbSession.device_id == device_id,
-            DbSession.is_active == True
+            DbSession.is_active
         ).all()
         
         for session in existing_sessions:
@@ -60,7 +60,7 @@ def get_active_session(db: Session, character_id: uuid.UUID, device_id: str):
     return db.query(DbSession).filter(
         DbSession.character_id == character_id,
         DbSession.device_id == device_id,
-        DbSession.is_active == True
+        DbSession.is_active
     ).first()
 
 def update_session(db: Session, session_id: uuid.UUID, is_active: Optional[bool] = None):
