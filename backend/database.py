@@ -6,26 +6,25 @@ from sqlalchemy.orm import sessionmaker
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_DB_PASSWORD = os.environ.get("SUPABASE_DB_PASSWORD")
-
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 print(f"SUPABASE_URL: {SUPABASE_URL}")
 print(f"DATABASE_URL: {DATABASE_URL}")
 
-if SUPABASE_URL and SUPABASE_DB_PASSWORD:
+if not DATABASE_URL and SUPABASE_URL and SUPABASE_DB_PASSWORD:
     host_match = re.search(r'https://([^.]+)\.supabase\.co', SUPABASE_URL)
     if host_match:
         host_id = host_match.group(1)
-        if not DATABASE_URL:
-            DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@db.{host_id}.supabase.co:5432/postgres"
-        print(f"Supabase直接接続: db.{host_id}.supabase.co:5432")
+        DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@db.{host_id}.supabase.co:5432/postgres"
+        print(f"Supabase直接接続を使用: db.{host_id}.supabase.co:5432")
     else:
-        if not DATABASE_URL:
-            DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
-        print("ローカル接続: localhost:54322")
-elif not DATABASE_URL:
+        DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
+        print("ローカル接続を使用: localhost:54322")
+elif not DATABASE_URL and SUPABASE_DB_PASSWORD:
     DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
-    print("ローカル接続: localhost:54322")
+    print("ローカル接続を使用: localhost:54322")
+else:
+    print("警告: DATABASE_URLが設定されていません。")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
