@@ -164,7 +164,18 @@ supabase start
 
 - ✅ **ユニットテスト**: モックを使用してデータベース接続なしでテスト可能
 - ⚠️ **統合テスト**: 実際のデータベースを使用する場合は環境変数の設定が必要
-- ✅ **メモリエンジンのテスト**: リンターチェックを実行し、コードの品質を確認
+- ✅ **メモリエンジンのテスト**: 以下のテストを実装し、すべて正常に通過することを確認
+  - `test_memory_generator_convert_raw_conversation`: 生の会話からdaily_raw記憶への変換をテスト
+  - `test_memory_generator_daily_summary`: daily_raw記憶からdaily_summaryの生成をテスト
+  - `test_memory_retriever_select_memories`: セッションコンテキストのための記憶選択をテスト
+  - `test_sleep_processor_start_sleep_session`: 睡眠セッション中の記憶処理をテスト
+- ✅ **テスト実行方法**:
+  ```bash
+  cd ~/repos/toagihouse-character-memory/backend
+  source venv/bin/activate
+  python -m unittest app/tests/test_memory_engine.py
+  ```
+- ✅ **リンターチェック**: `ruff check .` を実行し、未使用のインポートなどの問題を修正
 
 ### 記憶管理エンジンの実装詳細
 
