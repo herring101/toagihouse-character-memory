@@ -20,8 +20,6 @@ if SUPABASE_DB_PASSWORD:
             host_id = host_match.group(1)
             DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
             print("テスト用接続先: localhost:54322")
-            # DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@db.{host_id}.supabase.co:5432/postgres"
-            # print(f"テスト用接続先: db.{host_id}.supabase.co:5432")
         else:
             DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
             print("テスト用接続先: localhost:54322")
@@ -29,8 +27,8 @@ if SUPABASE_DB_PASSWORD:
         DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
         print("テスト用接続先: localhost:54322")
 else:
-    DATABASE_URL = os.environ.get("DATABASE_URL")
-    print(f"テスト用DATABASE_URL環境変数を使用: {DATABASE_URL}")
+    print(f"エラー: SUPABASE_DB_PASSWORDが設定されていません。")
+    sys.exit(1)
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
