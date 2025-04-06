@@ -1,0 +1,162 @@
+# ToagiHouse Character Memory System - Supabase接続設定ガイド
+
+## 現在の環境状態
+
+現在の環境では以下の状態が確認されています：
+
+- **環境変数**: `SUPABASE_DB_PASSWORD`は設定済み
+- **Supabase接続**: ローカルのPostgreSQLサーバー（ポート54322）は現在実行されていません
+- **必要なパッケージ**: フロントエンド・バックエンド共にSupabase関連パッケージは未インストール
+
+## タスク1.2「データアクセス関数の実装」に向けた準備
+
+### 1. 必要なパッケージのインストール
+
+#### フロントエンド (Next.js)
+
+```bash
+cd ~/repos/toagihouse-character-memory/chat-app
+npm install @supabase/supabase-js
+```
+
+#### バックエンド (FastAPI)
+
+```bash
+cd ~/repos/toagihouse-character-memory/backend
+source venv/bin/activate
+pip install psycopg2-binary sqlalchemy supabase
+```
+
+### 2. Supabase接続の設定
+
+#### フロントエンド用Supabaseクライアント
+
+`chat-app/src/lib/supabase.ts`を作成します：
+
+```typescript
+import { createClient } from '@supabase/supabase-js';
+
+// 環境変数から接続情報を取得
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+// Supabaseクライアントの作成
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+```
+
+#### バックエンド用データベース接続
+
+`backend/database.py`を作成します：
+
+```python
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+
+# 環境変数のロード
+load_dotenv()
+
+# データベース接続URL
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # ローカル開発用のデフォルト接続文字列
+    SUPABASE_DB_PASSWORD = os.getenv("SUPABASE_DB_PASSWORD")
+    DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
+
+# SQLAlchemy設定
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# DBセッションの依存関係
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+### 3. データモデルの定義
+
+`backend/models.py`を作成して、データベーススキーマに対応するモデルを定義します：
+
+```python
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text, JSON, DateTime
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
+import uuid
+from database import Base
+
+class Character(Base):
+    __tablename__ = "characters"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
+    name = Column(String, nullable=False)
+    config = Column(JSON, default={})
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Memory(Base):
+    __tablename__ = "memories"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
+    character_id = Column(UUID(as_uuid=True), ForeignKey("characters.id", ondelete="CASCADE"), nullable=False)
+    memory_type = Column(String, nullable=False)
+    start_day = Column(Integer, nullable=False)
+    end_day = Column(Integer, nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Session(Base):
+    __tablename__ = "sessions"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
+    character_id = Column(UUID(as_uuid=True), ForeignKey("characters.id", ondelete="CASCADE"), nullable=False)
+    device_id = Column(String, nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True)
+    started_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+```
+
+## タスク1.2「データアクセス関数の実装」の実装ステップ
+
+1. **キャラクター管理関数の実装**:
+   - キャラクター作成関数: `create_character(user_id, name, config={})`
+   - キャラクター取得関数: `get_character(character_id)`, `get_characters_by_user(user_id)`
+   - キャラクター更新関数: `update_character(character_id, name=None, config=None)`
+   - キャラクター削除関数: `delete_character(character_id)`
+
+2. **記憶管理関数の実装**:
+   - 記憶追加関数: `add_memory(user_id, character_id, memory_type, start_day, end_day, content)`
+   - 記憶検索・取得関数: `get_memories_by_character(character_id, memory_type=None, start_day=None, end_day=None)`
+   - 記憶更新関数: `update_memory(memory_id, content=None, memory_type=None)`
+   - 記憶削除関数: `delete_memory(memory_id)`
+
+3. **セッション管理関数の実装**:
+   - セッション作成関数: `create_session(user_id, character_id, device_id)`
+   - セッション取得関数: `get_active_session(character_id, device_id)`
+   - セッション更新関数: `update_session(session_id, is_active=None)`
+   - セッション終了関数: `end_session(session_id)`
+
+## 開発時の注意点
+
+1. **Supabase接続**:
+   - 現在の環境では、ローカルのPostgreSQLサーバーは実行されていません
+   - 実際の開発では、Supabase CLIを使用するか、リモートのSupabaseプロジェクトに接続する必要があります
+
+2. **環境変数**:
+   - `SUPABASE_URL`と`SUPABASE_ANON_KEY`の設定が必要です
+   - リモートSupabaseプロジェクトに接続する場合は、`DATABASE_URL`の設定も必要です
+
+3. **Row Level Security (RLS)**:
+   - データベーススキーマには既にRLSポリシーが設定されています
+   - データアクセス関数の実装時には、これらのポリシーを考慮する必要があります
+
+4. **テスト方法**:
+   - 実装したデータアクセス関数は、単体テストを作成して検証することをお勧めします
+   - Supabaseのローカル開発環境を使用する場合は、`supabase start`コマンドでサーバーを起動できます
