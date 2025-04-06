@@ -72,8 +72,16 @@ class TestMemoryEngine(unittest.TestCase):
     @patch('app.memory_engine.memory_retriever.completion')
     def test_memory_retriever_select_memories(self, mock_completion, mock_memory_crud):
         mock_memory1 = MagicMock(id=uuid.uuid4(), memory_type=MEMORY_TYPE_DAILY_SUMMARY)
-        mock_memory2 = MagicMock(id=uuid.uuid4(), memory_type=MEMORY_TYPE_LEVEL_10)
-        mock_memory_crud.get_memories_by_character.return_value = [mock_memory1, mock_memory2]
+        
+        mock_memory_crud.get_memories_by_character.return_value = []
+        
+        mock_memory_crud.get_memories_by_character.side_effect = [
+            [mock_memory1],  # MEMORY_TYPE_DAILY_SUMMARY
+            [],              # MEMORY_TYPE_LEVEL_10
+            [],              # MEMORY_TYPE_LEVEL_100
+            [],              # MEMORY_TYPE_LEVEL_1000
+            []               # MEMORY_TYPE_LEVEL_ARCHIVE
+        ]
         
         mock_completion.return_value.choices = [
             MagicMock(message=MagicMock(content=f"Memory ID: {mock_memory1.id}"))
