@@ -11,6 +11,12 @@ echo -e "${BLUE}===== ToAGI House Character Memory 初期セットアップ ====
 # プロジェクトルートディレクトリの取得
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# .env.localの存在確認
+if [ -f "$ROOT_DIR/.env.local" ]; then
+  echo -e "${GREEN}.env.localファイルが見つかりました${NC}"
+  set -a; source .env.local; set +a
+fi
+
 # フロントエンドのセットアップ
 setup_frontend() {
   echo -e "${GREEN}フロントエンドの依存関係をインストールしています...${NC}"

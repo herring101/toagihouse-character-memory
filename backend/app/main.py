@@ -1,12 +1,12 @@
-from fastapi import FastAPI, HTTPException, Body
+import json
+import os
+from typing import AsyncIterator, Dict, List
+
+from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from typing import List, AsyncIterator, Dict
-import os
-import json
 from litellm import completion
-
+from pydantic import BaseModel
 
 app = FastAPI(title="Chat API with LiteLLM")
 
@@ -80,7 +80,11 @@ async def chat(request: ChatRequest = Body(...)):
         ]
 
         # API キーのマッピング (Gemini API 用)
-        if "gemini" in request.model.lower() and os.environ.get("GOOGLE_API_KEY") and not os.environ.get("GEMINI_API_KEY"):
+        if (
+            "gemini" in request.model.lower()
+            and os.environ.get("GOOGLE_API_KEY")
+            and not os.environ.get("GEMINI_API_KEY")
+        ):
             google_api_key = os.environ.get("GOOGLE_API_KEY")
             if google_api_key:
                 os.environ["GEMINI_API_KEY"] = google_api_key
@@ -88,15 +92,12 @@ async def chat(request: ChatRequest = Body(...)):
         # ストリーミングレスポンスの場合
         if request.stream:
             return StreamingResponse(
-                stream_response(request.model, messages),
-                media_type="text/event-stream"
+                stream_response(request.model, messages), media_type="text/event-stream"
             )
         else:
             # 通常のレスポンスの場合
-            response = completion(
-                model=request.model, messages=messages, stream=False
-            )
-            
+            response = completion(model=request.model, messages=messages, stream=False)
+
             # レスポンスの整形
             return {
                 "id": response.id,
@@ -118,29 +119,35 @@ async def chat(request: ChatRequest = Body(...)):
         raise HTTPException(status_code=500, detail=error_message)
 
 
-async def stream_response(model: str, messages: List[Dict[str, str]]) -> AsyncIterator[str]:
+async def stream_response(
+    model: str, messages: List[Dict[str, str]]
+) -> AsyncIterator[str]:
     """
     ストリーミングレスポンスを生成するジェネレータ関数
     Server-Sent Events (SSE) 形式でレスポンスを返す
     """
     try:
         response = completion(model=model, messages=messages, stream=True)
-        
+
         for chunk in response:
-            if hasattr(chunk.choices[0], 'delta'):
+            if hasattr(chunk.choices[0], "delta"):
                 # OpenAI互換フォーマット
                 delta = chunk.choices[0].delta
                 content = delta.content or ""
-                
+
                 # SSE形式でデータを返す
                 if content:
                     yield f"data: {json.dumps({'content': content, 'done': False})}\n\n"
             else:
                 # その他のフォーマット (必要に応じて調整)
-                content = chunk.choices[0].message.content if hasattr(chunk.choices[0], 'message') else ""
+                content = (
+                    chunk.choices[0].message.content
+                    if hasattr(chunk.choices[0], "message")
+                    else ""
+                )
                 if content:
                     yield f"data: {json.dumps({'content': content, 'done': False})}\n\n"
-        
+
         # ストリーミング完了を示す最後のメッセージ
         yield f"data: {json.dumps({'content': '', 'done': True})}\n\n"
     except Exception as e:
@@ -149,7 +156,6 @@ async def stream_response(model: str, messages: List[Dict[str, str]]) -> AsyncIt
 
 
 # サーバー起動コマンド
-# uvicorn main:app --reload --host 0.0.0.0 --port 8000
 if __name__ == "__main__":
     import uvicorn
 
