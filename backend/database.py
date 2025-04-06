@@ -3,14 +3,11 @@ import re
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 
-load_dotenv()
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_DB_PASSWORD = os.environ.get("SUPABASE_DB_PASSWORD")
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_DB_PASSWORD = os.getenv("SUPABASE_DB_PASSWORD")
-
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 print(f"SUPABASE_URL: {SUPABASE_URL}")
 print(f"DATABASE_URL: {DATABASE_URL}")

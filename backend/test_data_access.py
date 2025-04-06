@@ -1,10 +1,7 @@
 import os
 import sys
 import uuid
-from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-
-load_dotenv()
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
