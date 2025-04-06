@@ -1,13 +1,36 @@
 import os
 import sys
 import uuid
-from sqlalchemy.orm import Session
+import re
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from database import SessionLocal
+from models import Base, Character, Memory, Session as DbSession
 import crud
-from models import Character, Memory, Session as DbSession
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_DB_PASSWORD = os.environ.get("SUPABASE_DB_PASSWORD")
+
+print(f"テスト用Supabase URL: {SUPABASE_URL}")
+print(f"パスワード設定状況: {'設定済み' if SUPABASE_DB_PASSWORD else '未設定'}")
+
+if SUPABASE_URL and SUPABASE_DB_PASSWORD:
+    host_match = re.search(r'https://([^.]+)\.supabase\.co', SUPABASE_URL)
+    if host_match:
+        host_id = host_match.group(1)
+        DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@db.{host_id}.supabase.co:5432/postgres"
+        print(f"テスト用接続先: db.{host_id}.supabase.co:5432")
+    else:
+        DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
+        print("テスト用接続先: localhost:54322")
+else:
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+    print(f"テスト用DATABASE_URL環境変数を使用: {DATABASE_URL}")
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def test_character_crud():
     """キャラクターCRUD操作のテスト"""
