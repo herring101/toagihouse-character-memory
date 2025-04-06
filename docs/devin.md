@@ -110,8 +110,8 @@ chat-app/
 
 ### データベース接続
 
-- ⚠️ **Supabaseへの直接接続制限**: Supabaseデータベースへの直接PostgreSQL接続（ポート5432）は失敗する可能性があります
-- ✅ **解決策**: Supabase REST APIを使用するか、ローカル開発環境でSupabase CLIを使用
+- ⚠️ **Supabaseへの直接接続制限**: Supabaseデータベースへの直接PostgreSQL接続（ポート5432）は失敗するため、ローカル接続（ポート54322）を使用するように設定を変更しました
+- ✅ **解決策**: ローカル開発環境では`localhost:54322`への接続を優先します。必要に応じて`app/core/database.py`と`app/tests/test_data_access.py`のコメントを編集することで直接接続に切り替えることができます
 
 ### コード品質
 
