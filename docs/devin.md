@@ -143,6 +143,35 @@ class Session(Base):
    - セッション更新関数: `update_session(session_id, is_active=None)`
    - セッション終了関数: `end_session(session_id)`
 
+## 実装の進捗
+
+### タスク1.2「データアクセス関数の実装」の完了
+
+以下のデータアクセス関数が実装されました：
+
+1. **キャラクター管理関数**
+   - `create_character`: 新しいキャラクターを作成する関数
+   - `get_character`: キャラクターIDでキャラクターを取得する関数
+   - `get_characters_by_user`: ユーザーIDに基づいてキャラクターのリストを取得する関数
+   - `update_character`: キャラクター情報を更新する関数
+   - `delete_character`: キャラクターを削除する関数
+
+2. **記憶管理関数**
+   - `add_memory`: 新しい記憶を追加する関数
+   - `get_memories_by_character`: キャラクターIDと条件に基づいて記憶を取得する関数
+   - `update_memory`: 記憶の内容や種類を更新する関数
+   - `delete_memory`: 記憶を削除する関数
+
+3. **セッション管理関数**
+   - `create_session`: 新しいセッションを作成する関数
+   - `get_active_session`: キャラクターIDとデバイスIDに基づいてアクティブなセッションを取得する関数
+   - `update_session`: セッション情報を更新する関数
+   - `end_session`: セッションを終了する関数
+
+### 次のステップ
+
+タスク1.3「追加マイグレーションとRLS設定」または、Phase 2「記憶管理エンジン」の実装に進みます。
+
 ## 開発時の注意点
 
 1. **Supabase接続**:
