@@ -11,31 +11,6 @@ echo -e "${BLUE}===== ToAGI House Character Memory 初期セットアップ ====
 # プロジェクトルートディレクトリの取得
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# .env.localのセットアップ
-setup_env() {
-  if [ ! -f "$ROOT_DIR/.env.local" ]; then
-    echo -e "${GREEN}.env.localファイルを作成します...${NC}"
-    cat > "$ROOT_DIR/.env.local" << EOL
-# API Keys for LLM services
-# At least one of these must be set
-OPENAI_API_KEY=""
-GEMINI_API_KEY=""
-GOOGLE_API_KEY=""
-ANTHROPIC_API_KEY=""
-
-# Database connection
-DATABASE_URL=""
-
-# Other configurations
-DEFAULT_MODEL="gpt-3.5-turbo"
-EOL
-
-    echo -e "${YELLOW}注意: .env.localファイルを作成しました。APIキーを設定してください。${NC}"
-  else
-    echo -e "${GREEN}.env.localファイルは既に存在します${NC}"
-  fi
-}
-
 # フロントエンドのセットアップ
 setup_frontend() {
   echo -e "${GREEN}フロントエンドの依存関係をインストールしています...${NC}"
@@ -74,12 +49,9 @@ setup_backend() {
 }
 
 # セットアップ関数の実行
-setup_env
 setup_frontend
 setup_backend
 
 echo -e "${BLUE}===== セットアップが完了しました =====${NC}"
 echo -e "${GREEN}アプリケーションを起動するには以下のコマンドを実行してください:${NC}"
 echo -e "${YELLOW}./start-app.sh${NC}"
-
-echo -e "${GREEN}注意: .env.localファイルにAPIキーを設定していることを確認してください${NC}"

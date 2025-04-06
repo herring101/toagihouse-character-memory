@@ -15,14 +15,12 @@
 ```
 
 このスクリプトは以下の処理を自動的に行います：
-- `.env.local` ファイルのテンプレートを作成（初回のみ）
 - フロントエンド依存関係のインストール（npm install）
 - バックエンド用の仮想環境作成とパッケージインストール
 
-`.env.local` ファイルに少なくとも一つのLLM APIキーを設定してください：
-- `OPENAI_API_KEY`
-- `GEMINI_API_KEY` / `GOOGLE_API_KEY`
-- `ANTHROPIC_API_KEY`
+以下の環境変数を設定してください：
+- LLM APIキー（少なくとも一つ）: `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`
+- Supabase接続情報: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_DB_PASSWORD`
 
 ### アプリケーションの起動
 
@@ -56,6 +54,8 @@
 - LiteLLM で複数の AI プロバイダー（Google、OpenAI、Anthropic）と統合
 - ストリーミング/非ストリーミングモードサポート
 - モデル一覧取得とチャット機能のエンドポイント提供
+- モジュール化されたフォルダ構造（app/core, app/models, app/crud, app/api, app/tests）
+- SQLAlchemy ORM を使用したデータアクセス層
 
 ### データベース設計 (Supabase/PostgreSQL)
 
