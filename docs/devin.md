@@ -168,6 +168,22 @@ class Session(Base):
    - `update_session`: セッション情報を更新する関数
    - `end_session`: セッションを終了する関数
 
+### 実装中に遭遇した問題と解決策
+
+1. **データベース接続の問題**
+   - **問題**: 初期実装ではローカルのPostgreSQLサーバー（localhost:54322）への接続を試みていましたが、実際にはリモートのSupabaseサーバーを使用する必要がありました。
+   - **解決策**: `database.py`を修正し、`SUPABASE_URL`環境変数からホスト名を抽出して正しい接続文字列を構築するようにしました。
+   ```python
+   host_match = re.search(r'https://([^.]+)\.supabase\.co', SUPABASE_URL)
+   if host_match:
+       host_id = host_match.group(1)
+       DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@db.{host_id}.supabase.co:5432/postgres"
+   ```
+
+2. **リンター警告**
+   - **問題**: ruffリンターによって未使用のインポートや不適切なブール比較などの警告が検出されました。
+   - **解決策**: 未使用のインポートを削除し、`is_active == True`のような比較を`is_active`に簡略化しました。
+
 ### 次のステップ
 
 タスク1.3「追加マイグレーションとRLS設定」または、Phase 2「記憶管理エンジン」の実装に進みます。
