@@ -6,7 +6,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}===== ToAGI House Character Memory 初期セットアップ =====${NC}"
+echo -e "${BLUE}===== TOAGI House Character Memory 初期セットアップ =====${NC}"
 
 # プロジェクトルートディレクトリの取得
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
