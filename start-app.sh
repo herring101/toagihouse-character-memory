@@ -12,7 +12,7 @@ echo -e "${BLUE}===== ToAGI House Character Memory アプリケーション起�
 # ターミナルを分割するためのファンクション
 run_backend() {
   echo -e "${GREEN}バックエンドを起動しています...${NC}"
-  cd "$(dirname "$0")/backend" && ./start.sh
+  cd "$(dirname "$0")/backend" && source venv/bin/activate && python run.py
 }
 
 run_frontend() {
