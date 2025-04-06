@@ -113,6 +113,24 @@ chat-app/
 - ⚠️ **Supabaseへの直接接続制限**: Supabaseデータベースへの直接PostgreSQL接続（ポート5432）は失敗するため、ローカル接続（ポート54322）を使用するように設定を変更しました
 - ✅ **解決策**: ローカル開発環境では`localhost:54322`への接続を優先します。必要に応じて`app/core/database.py`と`app/tests/test_data_access.py`のコメントを編集することで直接接続に切り替えることができます
 
+#### ローカルSupabaseの設定
+
+テストを実行するには、ローカルのSupabaseインスタンスが必要です：
+
+```bash
+# Supabase CLIのインストール
+npm install -g supabase
+
+# ローカルSupabaseの起動
+supabase start
+
+# これにより、PostgreSQLがlocalhost:54322で利用可能になります
+# ユーザー名: postgres
+# パスワード: postgres（または環境変数SUPABASE_DB_PASSWORDで指定）
+```
+
+テスト実行時は、ローカルSupabaseが起動していることを確認してください。
+
 ### コード品質
 
 - ⚠️ **リンター警告**: 未使用のインポートや不適切なブール比較に注意
