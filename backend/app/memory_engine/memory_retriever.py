@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Optional
 import uuid
 
 from app.models import Memory, Character
@@ -97,7 +97,7 @@ class MemoryRetriever:
                 try:
                     memory_id = line.split("Memory ID:")[1].strip()
                     selected_ids.append(uuid.UUID(memory_id))
-                except:
+                except (IndexError, ValueError):
                     continue
         
         return [mem for mem in all_memories if mem.id in selected_ids]

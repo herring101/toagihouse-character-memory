@@ -1,12 +1,10 @@
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 import uuid
-from datetime import datetime, timedelta
-import math
+from datetime import datetime
 
 from app.models import Memory, Character
 from app.crud import memory as memory_crud
-from app.crud import character as character_crud
 from app.memory_engine.memory_generator import MemoryGenerator
 from app.core.constants.memory_types import (
     MEMORY_TYPE_LEVEL_10, MEMORY_TYPE_LEVEL_100,

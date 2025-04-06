@@ -1,17 +1,11 @@
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Optional
 import uuid
-import os
-import time
-import json
-from datetime import datetime, timedelta
 
 from app.models import Memory, Character
 from app.crud import memory as memory_crud
 from app.core.constants.memory_types import (
     MEMORY_TYPE_DAILY_RAW, MEMORY_TYPE_DAILY_SUMMARY,
-    MEMORY_TYPE_LEVEL_10, MEMORY_TYPE_LEVEL_100,
-    MEMORY_TYPE_LEVEL_1000, MEMORY_TYPE_LEVEL_ARCHIVE,
     MEMORY_HIERARCHY
 )
 from app.core.prompts.memory_prompts import (
