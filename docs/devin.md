@@ -213,3 +213,58 @@ class Session(Base):
 4. **テスト方法**:
    - 実装したデータアクセス関数は、単体テストを作成して検証することをお勧めします
    - Supabaseのローカル開発環境を使用する場合は、`supabase start`コマンドでサーバーを起動できます
+   - バックエンドのテスト方法は以下の通りです：
+
+### バックエンドのテスト方法
+
+#### 1. ユニットテストの実行
+
+モックを使用したユニットテストは以下のコマンドで実行できます：
+
+```bash
+cd ~/repos/toagihouse-character-memory/backend
+source venv/bin/activate
+python -m unittest tests/test_crud.py
+```
+
+このテストはデータベース接続をモック化しているため、実際のデータベース接続は必要ありません。
+
+#### 2. 統合テストの実行
+
+実際のデータベースを使用したテストを行う場合は、以下の環境変数を設定してから`test_data_access.py`を実行します：
+
+```bash
+cd ~/repos/toagihouse-character-memory/backend
+source venv/bin/activate
+export SUPABASE_URL="https://kquspjkyrlvwywkfrczu.supabase.co"
+export SUPABASE_DB_PASSWORD="your_password_here"
+python test_data_access.py
+```
+
+注意: Supabaseへの直接PostgreSQL接続はネットワーク制限により失敗する可能性があります。その場合は、ローカル開発環境でSupabase CLIを使用するか、Supabase REST APIを使用してテストを行ってください。
+
+#### 3. モックを使用したテスト作成方法
+
+新しいテストを作成する場合は、`tests/test_crud.py`を参考にしてください。基本的な手順は以下の通りです：
+
+1. `unittest.mock.MagicMock`を使用してデータベースセッションをモック化
+2. 必要なメソッド（`query`, `filter`, `first`など）の戻り値を設定
+3. テスト対象の関数を呼び出し
+4. モックが期待通りに呼び出されたことを検証
+
+例：
+```python
+def test_get_character(self):
+    query_mock = MagicMock()
+    filter_mock = MagicMock()
+    
+    self.db.query.return_value = query_mock
+    query_mock.filter.return_value = filter_mock
+    filter_mock.first.return_value = Character(id=self.character_id, user_id=self.user_id, name="テスト")
+    
+    result = get_character(self.db, self.character_id)
+    
+    self.db.query.assert_called_once_with(Character)
+    query_mock.filter.assert_called_once()
+    self.assertEqual(result.id, self.character_id)
+```
