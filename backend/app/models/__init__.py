@@ -11,6 +11,8 @@ class Character(Base):
     user_id = Column(UUID(as_uuid=True), nullable=False)
     name = Column(String, nullable=False)
     config = Column(JSON, default={})
+    is_sleeping = Column(Boolean, default=False)
+    last_memory_processing_date = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Memory(Base):
@@ -23,6 +25,7 @@ class Memory(Base):
     start_day = Column(Integer, nullable=False)
     end_day = Column(Integer, nullable=False)
     content = Column(Text, nullable=False)
+    is_processed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Session(Base):
