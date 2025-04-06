@@ -13,11 +13,11 @@
 
 ### Phase 1: データアクセス層 (4 日)
 
-#### 1.1 Supabase 接続設定 (1 日)
+#### 1.1 Supabase 接続設定 (1 日) ✅
 
-- [ ] `.env.local`ファイルの作成と必要な環境変数の設定
-- [ ] Supabase JavaScript/TypeScript クライアントの導入
-- [ ] バックエンドからの Supabase 接続設定
+- [x] 環境変数の確認（`SUPABASE_DB_PASSWORD`は設定済み）
+- [x] Supabase接続テスト（ローカルPostgreSQLサーバーは現在実行されていない）
+- [x] Supabase接続設定ドキュメントの作成（`docs/devin.md`）
 
 #### 1.2 データアクセス関数の実装 (2 日)
 
