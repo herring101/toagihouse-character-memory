@@ -13,12 +13,18 @@ SUPABASE_DB_PASSWORD = os.environ.get("SUPABASE_DB_PASSWORD")
 print(f"テスト用Supabase URL: {SUPABASE_URL}")
 print(f"パスワード設定状況: {'設定済み' if SUPABASE_DB_PASSWORD else '未設定'}")
 
-if SUPABASE_URL and SUPABASE_DB_PASSWORD:
-    host_match = re.search(r'https://([^.]+)\.supabase\.co', SUPABASE_URL)
-    if host_match:
-        host_id = host_match.group(1)
-        DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@db.{host_id}.supabase.co:5432/postgres"
-        print(f"テスト用接続先: db.{host_id}.supabase.co:5432")
+if SUPABASE_DB_PASSWORD:
+    if SUPABASE_URL:
+        host_match = re.search(r'https://([^.]+)\.supabase\.co', SUPABASE_URL)
+        if host_match:
+            host_id = host_match.group(1)
+            DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
+            print("テスト用接続先: localhost:54322")
+            # DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@db.{host_id}.supabase.co:5432/postgres"
+            # print(f"テスト用接続先: db.{host_id}.supabase.co:5432")
+        else:
+            DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
+            print("テスト用接続先: localhost:54322")
     else:
         DATABASE_URL = f"postgresql://postgres:{SUPABASE_DB_PASSWORD}@localhost:54322/postgres"
         print("テスト用接続先: localhost:54322")

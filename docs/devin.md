@@ -110,8 +110,37 @@ chat-app/
 
 ### データベース接続
 
-- ⚠️ **Supabaseへの直接接続制限**: Supabaseデータベースへの直接PostgreSQL接続（ポート5432）は失敗する可能性があります
-- ✅ **解決策**: Supabase REST APIを使用するか、ローカル開発環境でSupabase CLIを使用
+- ⚠️ **Supabaseへの直接接続制限**: Supabaseデータベースへの直接PostgreSQL接続（ポート5432）は失敗するため、ローカル接続（ポート54322）を使用するように設定を変更しました
+- ✅ **解決策**: ローカル開発環境では`localhost:54322`への接続を優先します。必要に応じて`app/core/database.py`と`app/tests/test_data_access.py`のコメントを編集することで直接接続に切り替えることができます
+
+#### ローカルSupabaseの設定
+
+テストを実行するには、ローカルのPostgreSQLインスタンスが必要です：
+
+```bash
+# Docker経由でPostgreSQLを起動
+docker run --name postgres-test -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres -p 54322:5432 -d postgres:14
+
+# マイグレーションを適用してスキーマを作成
+cat supabase/migrations/20250406_initial_schema.sql | docker exec -i postgres-test psql -U postgres -d postgres
+```
+
+または、Supabase CLIを使用する場合：
+
+```bash
+# Supabase CLIのインストール（Homebrew経由）
+brew install supabase/tap/supabase
+
+# ローカルSupabaseの起動
+supabase init --force
+supabase start
+
+# これにより、PostgreSQLがlocalhost:54322で利用可能になります
+# ユーザー名: postgres
+# パスワード: postgres（または環境変数SUPABASE_DB_PASSWORDで指定）
+```
+
+テスト実行時は、ローカルPostgreSQLが起動していることを確認してください。また、マイグレーションファイルを適用してスキーマが作成されていることを確認してください。
 
 ### コード品質
 
