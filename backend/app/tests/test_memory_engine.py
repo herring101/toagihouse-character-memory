@@ -1,15 +1,12 @@
 import unittest
 from unittest.mock import MagicMock, patch
 import uuid
-from datetime import datetime
 
 from app.memory_engine.memory_generator import MemoryGenerator
 from app.memory_engine.memory_retriever import MemoryRetriever
 from app.memory_engine.sleep_processor import SleepProcessor
 from app.core.constants.memory_types import (
-    MEMORY_TYPE_DAILY_RAW, MEMORY_TYPE_DAILY_SUMMARY,
-    MEMORY_TYPE_LEVEL_10, MEMORY_TYPE_LEVEL_100,
-    MEMORY_TYPE_LEVEL_1000, MEMORY_TYPE_LEVEL_ARCHIVE
+    MEMORY_TYPE_DAILY_RAW, MEMORY_TYPE_DAILY_SUMMARY
 )
 
 class TestMemoryEngine(unittest.TestCase):
